@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/templated-message-generator/static/css/main.8e8f2ff0.chunk.css",
+    "main.js": "/templated-message-generator/static/js/main.651d7281.chunk.js",
+    "main.js.map": "/templated-message-generator/static/js/main.651d7281.chunk.js.map",
+    "runtime-main.js": "/templated-message-generator/static/js/runtime-main.c2bab558.js",
+    "runtime-main.js.map": "/templated-message-generator/static/js/runtime-main.c2bab558.js.map",
+    "static/js/2.b1608dd4.chunk.js": "/templated-message-generator/static/js/2.b1608dd4.chunk.js",
+    "static/js/2.b1608dd4.chunk.js.map": "/templated-message-generator/static/js/2.b1608dd4.chunk.js.map",
+    "index.html": "/templated-message-generator/index.html",
+    "static/css/main.8e8f2ff0.chunk.css.map": "/templated-message-generator/static/css/main.8e8f2ff0.chunk.css.map",
+    "static/js/2.b1608dd4.chunk.js.LICENSE.txt": "/templated-message-generator/static/js/2.b1608dd4.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.c2bab558.js",
+    "static/js/2.b1608dd4.chunk.js",
+    "static/css/main.8e8f2ff0.chunk.css",
+    "static/js/main.651d7281.chunk.js"
+  ]
+}
