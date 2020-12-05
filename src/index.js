@@ -60,7 +60,7 @@ const validationSchema = yup.object().shape({
         ),
     swabbed: yup.string().required('Please state if you have done a swab test').oneOf(['Yes', 'No']),
     certNo: yup.string().required('MC No. or NIL is required'),
-    medication: yup.string().required('Please state if the doctor has given you any medications').oneOf(['Yes', 'No']),
+    medication: yup.string().required('Please state if the doctor has given you any medications').oneOf(['Medication', 'No']),
 });
 
 const initialValues = {
