@@ -93,13 +93,13 @@ function formatStatusContents(values) {
     let messageStr = [];
 
     statuses.forEach(function (item, index) {
-        const status = item.status;
+        const status = item.excuse.toUpperCase();
         const duration = item.duration;
         const startDate = parseISO(item.startDate);
 
         try {
             const endDate = addDays(startDate, duration - 1);
-            messageStr.push(`${status} for ${duration} days from ${lightFormat(startDate, "ddMMyyyy")} to ${lightFormat(endDate, "ddMMyyyy")}`);
+            messageStr.push(`${status} for ${duration} ${duration > 1 ? "days" : "day"} from ${lightFormat(startDate, "ddMMyyyy")} to ${lightFormat(endDate, "ddMMyyyy")}`);
         } catch (err) {
             // RangeError occurs when date field is not filled, since date would be invalid
             // temporarily set as empty string first
