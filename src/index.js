@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Formik, Field, Form, ErrorMessage } from 'formik';
+import { Formik, Field, Form, ErrorMessage, FieldArray } from 'formik';
 import { Persist } from 'formik-persist'
 import * as yup from 'yup';
+import parseISO from 'date-fns/parseISO';
+import addDays from 'date-fns/addDays';
+import lightFormat from 'date-fns/lightFormat';
 
 import './index.css';
 
@@ -45,8 +48,19 @@ const validationSchema = yup.object().shape({
         .required('Time is required')
         .matches(/([01][0-9]|2[0-3])([0-5][0-9])/, 'Please provide time in 24hr format'),
     reason: yup.string().required('Reason is required'),
-    status: yup.string().required('Status is required'),
-    swabbed: yup.bool().required('Reason is required'),
+    hasStatus: yup.string().required('Please state if the doctor has given you any statuses').oneOf(['Yes', 'No']),
+    statuses: yup
+        .array()
+        .of(
+            yup.object().shape({
+                excuse: yup.string().required('Excuse is required'),
+                duration: yup.number('Only numerical digits are allowed').required('Duration in days is required').min(1, 'Duration should be 1 day or more'),
+                startDate: yup.date().required('Status starting date is required'),
+            })
+        ),
+    swabbed: yup.string().required('Please state if you have done a swab test').oneOf(['Yes', 'No']),
+    certNo: yup.string().required('MC No. or NIL is required'),
+    medication: yup.string().required('Please state if the doctor has given you any medications').oneOf(['Yes', 'No']),
 });
 
 const initialValues = {
@@ -61,15 +75,38 @@ const initialValues = {
     time: "",
     reason: "",
     medication: "",
-    status: "",
+    hasStatus: "",
+    statuses: [
+        {
+            excuse: "",
+            duration: "",
+            startDate: "",
+        },  // if changes to this variable is made, remember to edit below
+    ],
     certNo: "",
     swabbed: "",
 };
 
-function formatDate(date) {
-    let dateArr = date.split('-');
-    dateArr = dateArr.reverse();
-    return dateArr.join('');
+function formatStatusContents(values) {
+    // This function generates the message body for all the statuses that is provided.
+    const statuses = values.statuses;
+    let messageStr = [];
+
+    statuses.forEach(function (item, index) {
+        const status = item.status;
+        const duration = item.duration;
+        const startDate = parseISO(item.startDate);
+
+        try {
+            const endDate = addDays(startDate, duration - 1);
+            messageStr.push(`${status} for ${duration} days from ${lightFormat(startDate, "ddMMyyyy")} to ${lightFormat(endDate, "ddMMyyyy")}`);
+        } catch (err) {
+            // RangeError occurs when date field is not filled, since date would be invalid
+            // temporarily set as empty string first
+        }
+    })
+
+    return messageStr.join(', ');
 }
 
 function formatFirstMessageContents(values) {
@@ -81,12 +118,21 @@ function formatFirstMessageContents(values) {
     const platform = values.platform.toUpperCase();
     const incident = values.incident;
     const location = values.location.toUpperCase();
-    const date = formatDate(values.date);
+    const date = parseISO(values.date);
+    let dateStr = "";
+    try {
+        dateStr = lightFormat(date, "ddMMyyyy");
+    } catch (err) {
+        // RangeError occurs when date field is not filled, since date would be invalid
+        // temporarily set as empty string first
+        dateStr = "";
+    }
+
     const time = values.time;
     const reason = values.reason.toUpperCase();
 
     let MessageStr = `*<< ${nric} / ${rank} ${name} / ${contact} >>* from << *${platform}* >> is ${incident} at << *${location}* >> `;
-    MessageStr += `on << *${date} ${time}* >> for << *${reason}* >>. \n\n`;
+    MessageStr += `on << *${dateStr} ${time}* >> for << *${reason}* >>. \n\n`;
 
     return MessageStr;
 }
@@ -96,7 +142,8 @@ function formatSecondMessageContents(values) {
     const rank = values.rank;
     const name = values.name.toUpperCase();
     const hasMedication = values.medication;
-    const status = values.status;
+    const hasStatus = values.hasStatus;
+    const status = hasStatus === "Yes" ? formatStatusContents(values) : "NIL";
     const certNo = values.certNo.toUpperCase();
     const swabbed = values.swabbed;
 
@@ -110,7 +157,7 @@ function formatSecondMessageContents(values) {
 function formatFirstMessage(values) {
     let MessageStr = "Dear Sirs/Ma'am,\n\n";
     MessageStr += formatFirstMessageContents(values);
-    MessageStr += `For your update and information.\n`;
+    MessageStr += `For your update and information.`;
 
     return MessageStr;
 }
@@ -119,11 +166,10 @@ function formatSecondMessage(values) {
     let MessageStr = "Dear Sirs/Ma'am,\n\n";
     MessageStr += formatFirstMessageContents(values);
     MessageStr += formatSecondMessageContents(values);
-    MessageStr += `For your update and information.\n`;
+    MessageStr += `For your update and information.`;
 
     return MessageStr;
 }
-
 
 function FormPage() {
     return (
@@ -134,7 +180,7 @@ function FormPage() {
                 initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={values => {console.log(values)}}
-                render={({ errors, touched, values}) => (
+                render={({ errors, touched, values, isValid, dirty}) => (
                     <Form>
                         <Persist name="form" />
                         <h3 className="mb-0">Personal Particulars</h3>
@@ -256,20 +302,80 @@ function FormPage() {
                                     <Field type="radio" name="medication" id="medication-no" value="NIL" className="mr-1"/>
                                     No
                                 </label>
+                                <ErrorMessage name="medication" component="div" className="field-error mb-0" />
                             </div>
+                        </div>
+
+                        <div className="form-row mt-3">
+                            <div className="col-12">
+                                <p className="mb-0">Did you obtain any statuses from the doctor?</p>
+                                <label htmlFor='hasStatus-yes' className="mb-0">
+                                    <Field type="radio" name="hasStatus" id="hasStatus-yes" value="Yes" className="mr-1"/>
+                                    Yes
+                                </label>
+                                <label htmlFor="hasStatus-no" className="mb-0 ml-3">
+                                    <Field type="radio" name="hasStatus" id="hasStatus-no" value="No" className="mr-1"/>
+                                    No
+                                </label>
+                                <ErrorMessage name="hasStatus" component="div" className="field-error" />
+                            </div>
+
+                            { values.hasStatus === "Yes" && (
+                                <div className="col-12 mt-3">
+                                    <label htmlFor="status">Statuses</label>
+                                    <FieldArray name="statuses">
+                                        {({ insert, remove, push }) => (
+                                            <div>
+                                                { values.statuses.length > 0  &&
+                                                values.statuses.map((status, index) => (
+                                                    <div className="form-row mb-3" key={index}>
+                                                        <div className="col-12 col-md-4 col-lg-5">
+                                                            <label htmlFor={`statuses.${index}.excuse`}>Status</label>
+                                                            <Field name={`statuses.${index}.excuse`} type="text"
+                                                                   className={`form-control ${(errors.statuses && errors.statuses[index] && errors.statuses[index].excuse) ? 'invalid-field' : 'valid-field'}`}
+                                                            />
+                                                            <ErrorMessage name={`statuses.${index}.excuse`} component="div" className="field-error mb-0" />
+                                                        </div>
+
+                                                        <div className="col-12 mt-2 mt-md-0 col-md-2">
+                                                            <label htmlFor={`statuses.${index}.duration`}>No. of days</label>
+                                                            <Field name={`statuses.${index}.duration`} type="number"
+                                                                   className={`form-control ${(errors.statuses && errors.statuses[index] && errors.statuses[index].duration) ? 'invalid-field' : 'valid-field'}`}
+                                                            />
+                                                            <ErrorMessage name={`statuses.${index}.duration`} component="div" className="field-error mb-0" />
+                                                        </div>
+
+                                                        <div className="col-12 mt-2 mt-md-0 col-md-3 col-lg-2">
+                                                            <label htmlFor={`statuses.${index}.startDate`}>Starting Date</label>
+                                                            <Field name={`statuses.${index}.startDate`} type="date"
+                                                                   className={`form-control ${(errors.statuses && errors.statuses[index] && errors.statuses[index].startDate) ? 'invalid-field' : 'valid-field'}`}
+                                                            />
+                                                            <ErrorMessage name={`statuses.${index}.startDate`} component="div" className="field-error mb-0" />
+                                                        </div>
+
+                                                        <div className="col-12 mt-2 mt-md-auto col-md-3 col-lg-2 d-flex">
+                                                            <button type="button" className="btn btn-outline-danger" onClick={() => remove(index)}>
+                                                                Remove Status
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+
+                                                <div className="mt-2">
+                                                    <button type="button" className="btn btn-outline-dark"
+                                                            onClick={ () => push({excuse: "", duration: "", startDate: "",}) }
+                                                    >
+                                                        Add Additional Status
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </FieldArray>
+                                </div>
+                            )}
                         </div>
                         
                         <div className="form-row mt-3">
-                            <div className="form-group col-12">
-                                <label htmlFor="status">Status</label>
-                                <Field name="status" type="text" className={`form-control ${errors.status && touched.status ? 'invalid-field' : 'valid-field'}`} />
-                                <ErrorMessage name="status" component="div" className="field-error mb-0" />
-                                <small className="form-text text-muted mt-0">
-                                    Format for status: MC for X days from DDMMYYYY to DDMMYYYY<br />
-                                    If you did not get any status, put "NIL".
-                                </small>
-                            </div>
-
                             <div className="form-group col-12">
                                 <label htmlFor="certNo">MC Number</label>
                                 <Field name="certNo" type="text" className={`form-control ${errors.certNo && touched.certNo ? 'invalid-field' : 'valid-field'}`} />
@@ -289,6 +395,7 @@ function FormPage() {
                                     <Field type="radio" name="swabbed" id="swabbed-no" value="No" className="mr-1"/>
                                     No
                                 </label>
+                                <ErrorMessage name="swabbed" component="div" className="field-error mb-0" />
                             </div>
                         </div>
 

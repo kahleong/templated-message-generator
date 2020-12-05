@@ -7,6 +7,7 @@
     "@testing-library/jest-dom": "^5.11.6",
     "@testing-library/react": "^11.1.2",
     "@testing-library/user-event": "^12.2.2",
+    "date-fns": "^2.16.1",
     "formik": "^2.2.5",
     "formik-material-ui": "^3.0.0",
     "formik-persist": "^1.1.0",
