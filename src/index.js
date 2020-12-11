@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Formik, Field, Form, ErrorMessage, FieldArray } from 'formik';
-import { Persist } from 'formik-persist'
+import { PersistFormikValues } from 'formik-persist-values';
 import * as yup from 'yup';
 import parseISO from 'date-fns/parseISO';
 import addDays from 'date-fns/addDays';
@@ -182,7 +182,7 @@ function FormPage() {
                 onSubmit={values => {console.log(values)}}
                 render={({ errors, touched, values, isValid, dirty}) => (
                     <Form>
-                        <Persist name="form" />
+                        <PersistFormikValues name="form" persistInvalid={true} />
                         <h3 className="mb-0">Personal Particulars</h3>
                         <hr className="mt-1" />
 
