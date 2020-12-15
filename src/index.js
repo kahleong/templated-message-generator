@@ -93,7 +93,7 @@ function formatStatusContents(values) {
     let messageStr = [];
 
     statuses.forEach(function (item, index) {
-        const status = item.excuse.toUpperCase();
+        const status = item.excuse.toUpperCase().trim();
         const duration = item.duration;
         const startDate = parseISO(item.startDate);
 
@@ -111,13 +111,13 @@ function formatStatusContents(values) {
 
 function formatFirstMessageContents(values) {
     // This function generates the contents of the first message without the greeting and the "for your update and information"
-    const nric = values.nric.toUpperCase();
+    const nric = values.nric.toUpperCase().trim();
     const rank = values.rank;
-    const name = values.name.toUpperCase();
-    const contact = values.contact;
-    const platform = values.platform.toUpperCase();
-    const incident = values.incident;
-    const location = values.location.toUpperCase();
+    const name = values.name.toUpperCase().trim();
+    const contact = values.contact.trim();
+    const platform = values.platform.toUpperCase().trim();
+    const incident = values.incident.trim();
+    const location = values.location.toUpperCase().trim();
     const date = parseISO(values.date);
     let dateStr = "";
     try {
@@ -129,7 +129,7 @@ function formatFirstMessageContents(values) {
     }
 
     const time = values.time;
-    const reason = values.reason.toUpperCase();
+    const reason = values.reason.toUpperCase().trim();
 
     let MessageStr = `*<< ${nric} / ${rank} ${name} / ${contact} >>* from << *${platform}* >> is ${incident} at << *${location}* >> `;
     MessageStr += `on << *${dateStr} ${time}* >> for << *${reason}* >>. \n\n`;
@@ -140,11 +140,11 @@ function formatFirstMessageContents(values) {
 function formatSecondMessageContents(values) {
     // This function generates the contents for the outcome paragraph.
     const rank = values.rank;
-    const name = values.name.toUpperCase();
+    const name = values.name.toUpperCase().trim();
     const hasMedication = values.medication;
     const hasStatus = values.hasStatus;
     const status = hasStatus === "Yes" ? formatStatusContents(values) : "NIL";
-    const certNo = values.certNo.toUpperCase();
+    const certNo = values.certNo.toUpperCase().trim();
     const swabbed = values.swabbed;
 
     let MessageStr = `*${rank} ${name}* has been prescribed with << *${hasMedication}* >> and given << *${status}* >>. \n`;
