@@ -114,9 +114,9 @@ function formatFirstMessageContents(values) {
     const nric = values.nric.toUpperCase().trim();
     const rank = values.rank;
     const name = values.name.toUpperCase().trim();
-    const contact = values.contact.trim();
+    const contact = values.contact;
     const platform = values.platform.toUpperCase().trim();
-    const incident = values.incident.trim();
+    const incident = values.incident;
     const location = values.location.toUpperCase().trim();
     const date = parseISO(values.date);
     let dateStr = "";
@@ -399,7 +399,7 @@ function FormPage() {
                             </div>
                         </div>
 
-                        <div className="form-row">
+                        <div className="form-row mb-4">
                             <p className="mb-0">Your 2nd Message:</p>
                             <Field id="second-message" as="textarea" readOnly className="form-control mb-2" value={formatSecondMessage(values)} />
                             <button onClick={() => {
