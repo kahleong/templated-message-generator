@@ -422,8 +422,45 @@ class FormPage extends React.Component {
     }
 }
 
+
+class ErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(error) {
+        // Update state so the next render will show the fallback UI.
+        return { hasError: true };
+    }
+
+    componentDidCatch(error, errorInfo) {
+        // TODO: somehow display the error to users as we try our best to keep everything on client side
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="container">
+                    <div className="row justify-content-center">
+                        <div className="col text-center mt-5" id="frame">
+                            <h4 className="display-4">Something's wrong here</h4>
+                            <p>Please inform your Section Commanders about this error and they would advise accordingly.</p>
+
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+            return this.props.children;
+    }
+
+}
+
 ReactDOM.render(
-    <FormPage />,
+    <ErrorBoundary>
+        <FormPage />
+    </ErrorBoundary>,
     document.getElementById('root')
 );
 
