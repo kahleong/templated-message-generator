@@ -282,6 +282,7 @@ class FormPage extends React.Component {
                                     <small className="form-text text-muted mt-0">
                                         If you are reporting sick for fever, include the temperature as well (Example: Fever of 38.2)
                                         <br />Note that flu is not a symptom.
+                                        <br />If you are going for your MA, state the condition which you are consulting the doctor about.
                                     </small>
                                 </div>
                             </div>
