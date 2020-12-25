@@ -11,7 +11,7 @@ import ClipboardJS from 'clipboard';
 import './index.css';
 
 
-const ranks = ['REC', 'PTE', 'LCP', 'CPL', 'CFC', '3SG', 'ME1', 'ME2', 'ME3'];
+const ranks = ['REC', 'PTE', 'LCP', 'CPL', 'CFC', '3SG', 'ME1-T', 'ME1', 'ME2', 'ME3'];
 const incidents = ['RSI', 'RSO', 'MA'];
 
 const validationSchema = yup.object().shape({
