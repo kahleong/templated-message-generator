@@ -316,7 +316,7 @@ class FormPage extends React.Component {
 
                             <div className="form-row mt-3">
                                 <div className="col-12">
-                                    <p className="mb-0">Did you obtain any statuses from the doctor?</p>
+                                    <p className="mb-0">Did you obtain any MC or status from the doctor?</p>
                                     <label htmlFor='hasStatus-yes' className="mb-0">
                                         <Field type="radio" name="hasStatus" id="hasStatus-yes" value="Yes" className="mr-1"/>
                                         Yes
@@ -330,7 +330,8 @@ class FormPage extends React.Component {
 
                                 { values.hasStatus === "Yes" && (
                                     <div className="col-12 mt-3">
-                                        <label htmlFor="status">Statuses</label>
+                                        <label htmlFor="status" className="mb-0">Statuses</label>
+                                        <small className="form-text text-muted mt-0">Note that MC is considered a status.</small>
                                         <FieldArray name="statuses">
                                             {({ insert, remove, push }) => (
                                                 <div>
@@ -389,7 +390,7 @@ class FormPage extends React.Component {
                                     <Field name="certNo" type="text" className={`form-control ${errors.certNo && touched.certNo ? 'invalid-field' : 'valid-field'}`} />
                                     <ErrorMessage name="certNo" component="div" className="field-error mb-0" />
                                     <small className="form-text text-muted mt-0">
-                                        If you did not get any MC, put "NIL".
+                                        Excuses have MC Numbers as well. If you did not get any MC or status, put "NIL".
                                     </small>
                                 </div>
 
