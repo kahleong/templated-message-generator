@@ -118,7 +118,7 @@ function formatFirstMessageContents(values) {
     const contact = values.contact;
     const platform = values.platform.toUpperCase().trim();
     const incident = values.incident;
-    const location = values.location.toUpperCase().trim();
+    const location = values.incident === "RSI" ? "KMC" : values.location.toUpperCase().trim();
     const date = parseISO(values.date);
     let dateStr = "";
     try {
@@ -145,7 +145,7 @@ function formatSecondMessageContents(values) {
     const hasMedication = values.medication;
     const hasStatus = values.hasStatus;
     const status = hasStatus === "Yes" ? formatStatusContents(values) : "NIL";
-    const certNo = values.certNo.toUpperCase().trim();
+    const certNo = values.hasStatus === "Yes" ? values.certNo.toUpperCase().trim() : "NIL";
     const swabbed = values.swabbed;
 
     let MessageStr = `*${rank} ${name}* has been prescribed with << *${hasMedication}* >> and given << *${status}* >>. \n`;
@@ -255,12 +255,14 @@ class FormPage extends React.Component {
                                     <ErrorMessage name="incident" component="div" className="field-error" />
                                 </div>
 
-                                <div className="form-group col-12">
-                                    <label htmlFor="location">Location</label>
-                                    <Field name="location" type="text" className={`form-control ${errors.location && touched.location ? 'invalid-field' : 'valid-field'}`} />
-                                    <ErrorMessage name="location" component="div" className="field-error mb-0" />
-                                    <small className="form-text text-muted mt-0">Put location as "KMC" if you are going to RSI.</small>
-                                </div>
+                                {values.incident !== "RSI" && (
+                                    <div className="form-group col-12">
+                                        <label htmlFor="location">Location</label>
+                                        <Field name="location" type="text" className={`form-control ${errors.location && touched.location ? 'invalid-field' : 'valid-field'}`} />
+                                        <ErrorMessage name="location" component="div" className="field-error mb-0" />
+                                        <small className="form-text text-muted mt-0">If you're going to Kranji Medical Centre, enter "KMC".</small>
+                                    </div>
+                                )}
 
                                 <div className="form-group col-12 col-md-6">
                                     <label htmlFor="date">Date</label>
@@ -380,20 +382,22 @@ class FormPage extends React.Component {
                                                 </div>
                                             )}
                                         </FieldArray>
+
+                                        <div className="form-row mt-3">
+                                            <div className="form-group col-12">
+                                                <label htmlFor="certNo">MC Number</label>
+                                                <Field name="certNo" type="text" className={`form-control ${errors.certNo && touched.certNo ? 'invalid-field' : 'valid-field'}`} />
+                                                <ErrorMessage name="certNo" component="div" className="field-error mb-0" />
+                                                <small className="form-text text-muted mt-0">
+                                                    Excuses have MC Numbers as well. If you did not get any MC or status, put "NIL".
+                                                </small>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
                             <div className="form-row mt-3">
-                                <div className="form-group col-12">
-                                    <label htmlFor="certNo">MC Number</label>
-                                    <Field name="certNo" type="text" className={`form-control ${errors.certNo && touched.certNo ? 'invalid-field' : 'valid-field'}`} />
-                                    <ErrorMessage name="certNo" component="div" className="field-error mb-0" />
-                                    <small className="form-text text-muted mt-0">
-                                        Excuses have MC Numbers as well. If you did not get any MC or status, put "NIL".
-                                    </small>
-                                </div>
-
                                 <div className="form-group col-12">
                                     <p className="mb-0">Did you go through a swab test?</p>
                                     <label htmlFor='swabbed-yes' className="mb-0">
