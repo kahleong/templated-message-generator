@@ -420,7 +420,8 @@ class FormPage extends React.Component {
                                     <div className="form-group col-12">
                                         <p className="mb-0">Did you update ESS?</p>
                                         <small className="form-text text-muted mt-0">
-                                            You need to update ESS if you are given an MC when you RSO or go for MA. \n
+                                            You need to update ESS if you are given an MC when you RSO or go for MA.</small>
+					<small className="form-text text-muted mt-0">
 					    To access/download ESS go <a href="http://onelink.to/jf2waq">here</a> </small>
                                   
                                         <label htmlFor='ESS-yes' className="mb-0">
