@@ -62,6 +62,7 @@ const validationSchema = yup.object().shape({
     swabbed: yup.string().required('Please state if you have done a swab test').oneOf(['Yes', 'No']),
     certNo: yup.string().required('MC No. or NIL is required'),
     medication: yup.string().required('Please state if the doctor has given you any medications').oneOf(['Medication', 'NIL']),
+    ESS: yup.string().required('Please indicate if you have updated ESS'),
 });
 
 const initialValues = {
@@ -148,20 +149,15 @@ function formatSecondMessageContents(values) {
     const status = hasStatus === "Yes" ? formatStatusContents(values) : "NIL";
     const certNo = values.hasStatus === "Yes" ? values.certNo.toUpperCase().trim() : "NIL";
     const swabbed = values.swabbed;
-    const ESS = values.ESS;
     const incident = values.incident;
+    const ESS = incident === "RSI" ? "N/A" : values.ESS;
 	
     let MessageStr = `*${rank} ${name}* has been prescribed with << *${hasMedication}* >> and given << *${status}* >>. \n`;
     MessageStr += `MC Number: ${certNo} \n`;
     MessageStr += `Swab Test: *${swabbed}*\n`;
-    if (incident != "RSI"){
     MessageStr += `Updated ESS: *${ESS}*\n\n`;
     return MessageStr;
-    }
-    else{
-    MessageStr += `Updated ESS: *N/A*\n\n`;
-    return MessageStr;
-    }
+    
 }
 
 function formatFirstMessage(values) {
@@ -173,8 +169,6 @@ function formatFirstMessage(values) {
 }
 
 function formatSecondMessage(values) {
-    const hasStatus = values.hasStatus;
-    const certNo = values.certNo;
     let MessageStr = "Dear Sirs/Ma'am,\n\n";
     MessageStr += formatFirstMessageContents(values);
     MessageStr += formatSecondMessageContents(values);
@@ -407,8 +401,9 @@ class FormPage extends React.Component {
                                     </div>
                                 )}
                             </div>
-				<div className="form-row mt-3">
-				    <div className="form-group col-12">
+
+                            <div className="form-row mt-3">
+                                <div className="form-group col-12">
                                     <p className="mb-0">Did you go through a swab test?</p>
                                     <label htmlFor='swabbed-yes' className="mb-0">
                                         <Field type="radio" name="swabbed" id="swabbed-yes" value="Yes" className="mr-1"/>
@@ -419,29 +414,31 @@ class FormPage extends React.Component {
                                         No
                                     </label>
                                     <ErrorMessage name="swabbed" component="div" className="field-error mb-0" />
-				</div>
-                            </div>
-			  	<div className="form-row mt-0.5">
-				{values.incident !== "RSI" && (
-				    <div className="form-group col-12">
-                                    <p className="mb-0">Did you update ESS?</p>
-                                    <label htmlFor='ESS-yes' className="mb-0">
-                                        <Field type="radio" name="ESS" id="ESS-yes" value="Yes" className="mr-1"/>
-                                        Yes
-                                    </label>
-                                    <label htmlFor="ESS-no" className="mb-0 ml-3">
-                                        <Field type="radio" name="ESS" id="ESS-no" value="No" className="mr-1"/>
-                                        No
-                                    </label>
-				    <label htmlFor="ESS-N/A" className="mb-0 ml-3">
-                                        <Field type="radio" name="ESS" id="ESS-N/A" value="N/A" className="mr-1"/>
-                                        N/A
-                                    </label>
-                                    <ErrorMessage name="ESS" component="div" className="field-error mb-0" />
-				    </div>
+                                </div>
+                            
+                                {values.incident !== "RSI" && (
+                                    <div className="form-group col-12">
+                                        <p className="mb-0">Did you update ESS?</p>
+                                        <small className="form-text text-muted mt-0">
+                                            You need to update ESS if you are given an MC when you RSO or go for MA.
+                                        </small>
+                                        <label htmlFor='ESS-yes' className="mb-0">
+                                            <Field type="radio" name="ESS" id="ESS-yes" value="Yes" className="mr-1"/>
+                                            Yes
+                                        </label>
+                                        <label htmlFor="ESS-no" className="mb-0 ml-3">
+                                            <Field type="radio" name="ESS" id="ESS-no" value="No" className="mr-1"/>
+                                            No
+                                        </label>
+                                        <label htmlFor="ESS-N/A" className="mb-0 ml-3">
+                                            <Field type="radio" name="ESS" id="ESS-N/A" value="N/A" className="mr-1"/>
+                                            N/A
+                                        </label>
+                                        <ErrorMessage name="ESS" component="div" className="field-error mb-0" />
+                                    </div>
                                 )}
-			    </div>
-
+                            </div>
+                            				        	    
                             <div className="form-row mb-3">
                                 <p className="mb-0">Your 2nd Message:</p>
                                 <Field id="second-message" as="textarea" readOnly className="form-control mb-2" value={formatSecondMessage(values)} />
